@@ -98,10 +98,11 @@ Enable Vercel Analytics in your dashboard for monitoring.
   "name": "vidhyadham-monitor",    // Project name
   "cleanUrls": true,               // Remove .html extension
   "trailingSlash": false,          // No trailing slashes
-  "headers": [...],                // Security headers
-  "routes": [...]                  // URL routing
+  "headers": [...]                 // Security headers
 }
 ```
+
+**Note**: `routes` and `cleanUrls` cannot be used together. The current config uses `cleanUrls` for automatic URL cleaning.
 
 ### Key Features Enabled
 - ✅ **Clean URLs**: `/deploy` instead of `/deploy.html`
@@ -146,6 +147,14 @@ Your deployed monitor will be available at:
 # Check vercel.json syntax
 npx vercel dev  # Test locally first
 ```
+
+#### "routes cannot be present" Error
+If you see: `If 'cleanUrls' is used, then 'routes' cannot be present`
+- **Fix**: Use the provided `vercel.json` (already fixed)
+- **Alternative**: Use `vercel-simple.json` for minimal config:
+  ```bash
+  mv vercel-simple.json vercel.json
+  ```
 
 #### CORS Issues
 The monitor already handles CORS properly, but if you see errors:

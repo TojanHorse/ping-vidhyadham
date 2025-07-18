@@ -1,22 +1,8 @@
 {
   "version": 2,
   "name": "vidhyadham-monitor",
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/deploy",
-      "dest": "/deploy.html"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",
@@ -42,17 +28,6 @@
           "value": "public, max-age=3600, must-revalidate"
         }
       ]
-    },
-    {
-      "source": "/(.*)\\.html",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/html; charset=utf-8"
-        }
-      ]
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
