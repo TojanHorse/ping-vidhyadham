@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Tester - VidhyaDham</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success { background: #f0f9ff; border-color: #10b981; }
+        .error { background: #fef2f2; border-color: #ef4444; }
+        .warning { background: #fffbeb; border-color: #f59e0b; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #5a6fd8; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .status-ok { color: #10b981; }
+        .status-error { color: #ef4444; }
+        .status-warning { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 VidhyaDham Endpoint Tester</h1>
+        <p>This tool helps debug why your monitor might be failing to connect.</p>
+
+        <div class="test-section">
+            <h3>1. Test Service URL</h3>
+            <input type="url" id="serviceUrl" value="https://vidhyadham-management-g5b4.onrender.com/api/health" placeholder="Enter your service URL">
+            <button onclick="testEndpoint()">🔄 Test Endpoint</button>
+            <button onclick="testDirect()">🌐 Test Direct Access</button>
+            <div id="endpointResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. CORS Test</h3>
+            <p>Testing if Cross-Origin Resource Sharing (CORS) is properly configured.</p>
+            <button onclick="testCORS()">🔍 Test CORS</button>
+            <div id="corsResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Network Diagnostics</h3>
+            <button onclick="testNetwork()">📡 Test Network</button>
+            <div id="networkResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Quick Fixes</h3>
+            <div id="recommendations"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testEndpoint() {
+            const url = document.getElementById('serviceUrl').value;
+            const result = document.getElementById('endpointResult');
+            result.style.display = 'block';
+            result.textContent = 'Testing endpoint...';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache'
+                });
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<span class="status-ok">✅ SUCCESS</span>\n\nResponse Time: ${responseTime}ms\nStatus: ${response.status}\nHeaders: ${JSON.stringify([...response.headers.entries()], null, 2)}\n\nResponse Data:\n${JSON.stringify(data, null, 2)}`;
+                    showRecommendations('success', 'Endpoint is working correctly!');
+                } else {
+                    result.innerHTML = `<span class="status-error">❌ HTTP ERROR</span>\n\nStatus: ${response.status}\nStatus Text: ${response.statusText}\nResponse Time: ${responseTime}ms`;
+                    showRecommendations('http_error', `HTTP ${response.status} error`);
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="status-error">❌ FETCH ERROR</span>\n\nError: ${error.message}\nError Type: ${error.name}`;
+                showRecommendations('fetch_error', error.message);
+            }
+        }
+
+        async function testDirect() {
+            const url = document.getElementById('serviceUrl').value;
+            window.open(url, '_blank');
+        }
+
+        async function testCORS() {
+            const url = document.getElementById('serviceUrl').value;
+            const result = document.getElementById('corsResult');
+            result.style.display = 'block';
+            result.textContent = 'Testing CORS...';
+
+            try {
+                // Test preflight request
+                const preflightResponse = await fetch(url, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': preflightResponse.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': preflightResponse.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': preflightResponse.headers.get('Access-Control-Allow-Headers')
+                };
+
+                if (corsHeaders['Access-Control-Allow-Origin']) {
+                    result.innerHTML = `<span class="status-ok">✅ CORS CONFIGURED</span>\n\nCORS Headers:\n${JSON.stringify(corsHeaders, null, 2)}`;
+                } else {
+                    result.innerHTML = `<span class="status-error">❌ CORS NOT CONFIGURED</span>\n\nNo CORS headers found. The server needs to add CORS support.`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="status-error">❌ CORS TEST FAILED</span>\n\nError: ${error.message}`;
+            }
+        }
+
+        async function testNetwork() {
+            const result = document.getElementById('networkResult');
+            result.style.display = 'block';
+            result.textContent = 'Testing network connectivity...';
+
+            const tests = [
+                { name: 'Google DNS', url: 'https://dns.google/resolve?name=google.com&type=A' },
+                { name: 'Cloudflare DNS', url: 'https://cloudflare-dns.com/dns-query?name=cloudflare.com&type=A' },
+                { name: 'JSONPlaceholder API', url: 'https://jsonplaceholder.typicode.com/posts/1' }
+            ];
+
+            let results = 'Network Connectivity Tests:\n\n';
+            
+            for (const test of tests) {
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(test.url, { method: 'GET', mode: 'cors' });
+                    const endTime = Date.now();
+                    const responseTime = endTime - startTime;
+                    
+                    if (response.ok) {
+                        results += `✅ ${test.name}: OK (${responseTime}ms)\n`;
+                    } else {
+                        results += `❌ ${test.name}: HTTP ${response.status}\n`;
+                    }
+                } catch (error) {
+                    results += `❌ ${test.name}: ${error.message}\n`;
+                }
+            }
+
+            result.innerHTML = results;
+        }
+
+        function showRecommendations(type, message) {
+            const rec = document.getElementById('recommendations');
+            
+            switch (type) {
+                case 'success':
+                    rec.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Everything looks good!</h4>
+                            <p>Your endpoint is working correctly. If the monitor is still failing:</p>
+                            <ul>
+                                <li>Make sure the monitor URL matches exactly: <code>${document.getElementById('serviceUrl').value}</code></li>
+                                <li>Check if there are any browser extensions blocking requests</li>
+                                <li>Try clearing browser cache and cookies</li>
+                            </ul>
+                        </div>`;
+                    break;
+                    
+                case 'fetch_error':
+                    rec.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Connection Error</h4>
+                            <p><strong>Issue:</strong> ${message}</p>
+                            <p><strong>Solutions:</strong></p>
+                            <ul>
+                                <li><strong>CORS Missing:</strong> Your server needs CORS headers</li>
+                                <li><strong>Service Down:</strong> Check if your Render service is running</li>
+                                <li><strong>URL Wrong:</strong> Verify the URL is correct</li>
+                                <li><strong>Network Issue:</strong> Check your internet connection</li>
+                            </ul>
+                            <p><strong>Next Steps:</strong></p>
+                            <ol>
+                                <li>Add this code to your server (server/index.ts):</li>
+                                <pre>app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
+  next();
+});</pre>
+                                <li>Redeploy your Render service</li>
+                                <li>Test again</li>
+                            </ol>
+                        </div>`;
+                    break;
+                    
+                case 'http_error':
+                    rec.innerHTML = `
+                        <div class="warning">
+                            <h4>⚠️ HTTP Error</h4>
+                            <p><strong>Issue:</strong> ${message}</p>
+                            <p><strong>Solutions:</strong></p>
+                            <ul>
+                                <li><strong>404 Not Found:</strong> Check if /api/health endpoint exists</li>
+                                <li><strong>500 Server Error:</strong> Check Render logs for errors</li>
+                                <li><strong>401 Unauthorized:</strong> Health endpoint might require authentication</li>
+                            </ul>
+                        </div>`;
+                    break;
+            }
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testEndpoint();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

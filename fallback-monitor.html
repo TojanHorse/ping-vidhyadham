@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 BULLETPROOF VidhyaDham Monitor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        .dot {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .online { background: #10b981; box-shadow: 0 0 20px #10b981; }
+        .offline { background: #ef4444; box-shadow: 0 0 20px #ef4444; }
+        .checking { background: #f59e0b; box-shadow: 0 0 20px #f59e0b; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        .stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        .stat-label { opacity: 0.8; }
+        .stat-value { font-weight: 600; }
+        .logs {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+        }
+        .log-success { color: #10b981; }
+        .log-error { color: #ef4444; }
+        .log-warning { color: #f59e0b; }
+        .log-info { color: #3b82f6; }
+        .endpoints {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.8rem;
+        }
+        .endpoint {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .endpoint-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔥</div>
+        <div class="title">BULLETPROOF VidhyaDham Monitor</div>
+        
+        <div class="status">
+            <div class="dot checking" id="statusDot"></div>
+            <span id="statusText">Starting...</span>
+        </div>
+
+        <div class="endpoints">
+            <h4>Endpoint Status:</h4>
+            <div class="endpoint">
+                <span>/api/ping</span>
+                <div class="endpoint-status checking" id="ping-status"></div>
+            </div>
+            <div class="endpoint">
+                <span>/api/health</span>
+                <div class="endpoint-status checking" id="health-status"></div>
+            </div>
+            <div class="endpoint">
+                <span>Direct Service</span>
+                <div class="endpoint-status checking" id="direct-status"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-label">Working Endpoint:</span>
+                <span class="stat-value" id="workingEndpoint">Testing...</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Response Time:</span>
+                <span class="stat-value" id="responseTime">-</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Success Count:</span>
+                <span class="stat-value" id="successCount">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Failed Count:</span>
+                <span class="stat-value" id="failCount">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Next Ping:</span>
+                <span class="stat-value" id="countdown">10s</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Uptime:</span>
+                <span class="stat-value" id="uptime">0%</span>
+            </div>
+        </div>
+
+        <button onclick="monitor.pingNow()">🔄 Ping Now</button>
+        <button onclick="monitor.toggleMonitoring()">⏸️ Pause</button>
+        <button onclick="monitor.clearLogs()">🗑️ Clear Logs</button>
+
+        <div class="logs" id="logs"></div>
+    </div>
+
+    <script>
+        class BulletproofMonitor {
+            constructor() {
+                this.serviceUrl = 'https://vidhyadham-management-g5b4.onrender.com';
+                this.endpoints = [
+                    { name: 'ping', url: `${this.serviceUrl}/api/ping`, priority: 1 },
+                    { name: 'health', url: `${this.serviceUrl}/api/health`, priority: 2 },
+                    { name: 'direct', url: this.serviceUrl, priority: 3 }
+                ];
+                this.workingEndpoint = null;
+                this.isRunning = true;
+                this.successCount = 0;
+                this.failCount = 0;
+                this.nextPingTime = 10;
+                
+                this.initializeElements();
+                this.startMonitoring();
+                this.startCountdown();
+                
+                this.addLog('🔥 Bulletproof monitor initialized', 'info');
+                this.addLog('📡 Testing multiple endpoints for maximum reliability', 'info');
+            }
+
+            initializeElements() {
+                this.statusDot = document.getElementById('statusDot');
+                this.statusText = document.getElementById('statusText');
+                this.workingEndpointEl = document.getElementById('workingEndpoint');
+                this.responseTimeEl = document.getElementById('responseTime');
+                this.successCountEl = document.getElementById('successCount');
+                this.failCountEl = document.getElementById('failCount');
+                this.countdownEl = document.getElementById('countdown');
+                this.uptimeEl = document.getElementById('uptime');
+                this.logsEl = document.getElementById('logs');
+            }
+
+            async testAllEndpoints() {
+                this.updateStatus('checking', 'Testing endpoints...');
+                
+                for (const endpoint of this.endpoints) {
+                    try {
+                        const startTime = Date.now();
+                        
+                        let response;
+                        if (endpoint.name === 'direct') {
+                            // For direct service test, use no-cors mode
+                            response = await fetch(endpoint.url, { 
+                                method: 'HEAD', 
+                                mode: 'no-cors',
+                                cache: 'no-cache'
+                            });
+                        } else {
+                            // For API endpoints, use cors mode
+                            response = await fetch(endpoint.url, {
+                                method: 'GET',
+                                mode: 'cors',
+                                cache: 'no-cache'
+                            });
+                        }
+                        
+                        const endTime = Date.now();
+                        const responseTime = endTime - startTime;
+                        
+                        if (endpoint.name === 'direct' || response.ok) {
+                            this.workingEndpoint = endpoint;
+                            this.updateEndpointStatus(endpoint.name, 'online');
+                            this.updateStatus('online', `Service Online (${endpoint.name})`);
+                            this.responseTimeEl.textContent = `${responseTime}ms`;
+                            this.workingEndpointEl.textContent = endpoint.url;
+                            this.successCount++;
+                            this.addLog(`✅ ${endpoint.name} endpoint working (${responseTime}ms)`, 'success');
+                            
+                            // Keep service alive by hitting the working endpoint
+                            this.keepAlive(endpoint);
+                            return true;
+                        } else {
+                            this.updateEndpointStatus(endpoint.name, 'offline');
+                            this.addLog(`❌ ${endpoint.name} endpoint failed: HTTP ${response.status}`, 'error');
+                        }
+                    } catch (error) {
+                        this.updateEndpointStatus(endpoint.name, 'offline');
+                        this.addLog(`❌ ${endpoint.name} endpoint error: ${error.message}`, 'error');
+                    }
+                }
+                
+                // All endpoints failed
+                this.failCount++;
+                this.updateStatus('offline', 'All endpoints failed');
+                this.responseTimeEl.textContent = 'Failed';
+                this.workingEndpointEl.textContent = 'None working';
+                return false;
+            }
+
+            async keepAlive(endpoint) {
+                // Send a keep-alive request to prevent sleeping
+                try {
+                    if (endpoint.name !== 'direct') {
+                        await fetch(endpoint.url, {
+                            method: 'GET',
+                            mode: 'cors',
+                            cache: 'no-cache'
+                        });
+                    }
+                } catch (error) {
+                    // Ignore keep-alive errors
+                }
+            }
+
+            updateStatus(status, text) {
+                this.statusDot.className = `dot ${status}`;
+                this.statusText.textContent = text;
+                this.updateStats();
+            }
+
+            updateEndpointStatus(endpointName, status) {
+                const statusEl = document.getElementById(`${endpointName}-status`);
+                if (statusEl) {
+                    statusEl.className = `endpoint-status ${status}`;
+                }
+            }
+
+            updateStats() {
+                this.successCountEl.textContent = this.successCount;
+                this.failCountEl.textContent = this.failCount;
+                
+                const total = this.successCount + this.failCount;
+                const uptimePercentage = total > 0 ? ((this.successCount / total) * 100).toFixed(1) : 0;
+                this.uptimeEl.textContent = `${uptimePercentage}%`;
+            }
+
+            addLog(message, type) {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-${type}`;
+                logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+                
+                this.logsEl.appendChild(logEntry);
+                this.logsEl.scrollTop = this.logsEl.scrollHeight;
+                
+                // Keep only last 100 logs
+                if (this.logsEl.children.length > 100) {
+                    this.logsEl.removeChild(this.logsEl.children[0]);
+                }
+            }
+
+            startMonitoring() {
+                // Initial test
+                this.testAllEndpoints();
+                
+                // Set up interval
+                this.pingInterval = setInterval(() => {
+                    if (this.isRunning) {
+                        this.testAllEndpoints();
+                        this.nextPingTime = 10;
+                    }
+                }, 10000);
+            }
+
+            startCountdown() {
+                this.countdownInterval = setInterval(() => {
+                    if (this.isRunning && this.nextPingTime > 0) {
+                        this.nextPingTime--;
+                        this.countdownEl.textContent = `${this.nextPingTime}s`;
+                        
+                        if (this.nextPingTime === 0) {
+                            this.nextPingTime = 10;
+                        }
+                    } else if (!this.isRunning) {
+                        this.countdownEl.textContent = 'Paused';
+                    }
+                }, 1000);
+            }
+
+            pingNow() {
+                if (this.isRunning) {
+                    this.addLog('🔄 Manual ping triggered', 'info');
+                    this.testAllEndpoints();
+                    this.nextPingTime = 10;
+                }
+            }
+
+            toggleMonitoring() {
+                this.isRunning = !this.isRunning;
+                const button = event.target;
+                
+                if (this.isRunning) {
+                    button.textContent = '⏸️ Pause';
+                    this.addLog('▶️ Monitoring resumed', 'info');
+                } else {
+                    button.textContent = '▶️ Resume';
+                    this.addLog('⏸️ Monitoring paused', 'info');
+                    this.updateStatus('checking', 'Paused');
+                }
+            }
+
+            clearLogs() {
+                this.logsEl.innerHTML = '';
+                this.addLog('🗑️ Logs cleared', 'info');
+            }
+        }
+
+        // Initialize the bulletproof monitor
+        const monitor = new BulletproofMonitor();
+
+        // Prevent page sleep
+        setInterval(() => {
+            console.log('🔥 Bulletproof keep-alive:', new Date().toISOString());
+        }, 30000);
+    </script>
+</body>
+</html>
