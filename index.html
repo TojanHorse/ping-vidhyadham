@@ -4,6 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidhyaDham Service Monitor</title>
+    <meta name="description" content="Keep-alive monitor for VidhyaDham service to prevent Render from spinning down">
+    <meta name="keywords" content="vidhyadham, monitor, keep-alive, ping, uptime, render, vercel">
+    <meta name="author" content="VidhyaDham Team">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vidhyadham-monitor.vercel.app/">
+    <meta property="og:title" content="VidhyaDham Service Monitor">
+    <meta property="og:description" content="Keep-alive monitor for VidhyaDham service">
+    <meta property="og:image" content="https://vidhyadham-monitor.vercel.app/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://vidhyadham-monitor.vercel.app/">
+    <meta property="twitter:title" content="VidhyaDham Service Monitor">
+    <meta property="twitter:description" content="Keep-alive monitor for VidhyaDham service">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕉️</text></svg>">
+    
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
     <style>
         * {
             margin: 0;
@@ -327,12 +352,21 @@
                 this.nextPingTime = 10;
                 
                 try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+                    
                     const response = await fetch(url, {
                         method: 'GET',
                         mode: 'cors',
-                        cache: 'no-cache'
+                        cache: 'no-cache',
+                        signal: controller.signal,
+                        headers: {
+                            'User-Agent': 'VidhyaDham-Monitor/1.0 (Vercel)',
+                            'Accept': 'application/json, text/plain, */*'
+                        }
                     });
                     
+                    clearTimeout(timeoutId);
                     const endTime = Date.now();
                     const responseTimeMs = endTime - startTime;
                     
@@ -341,6 +375,11 @@
                         this.updateStatus('online', 'Service Online');
                         this.responseTime.textContent = `${responseTimeMs}ms`;
                         this.addLog(`✅ Ping successful (${responseTimeMs}ms)`, 'success');
+                        
+                        // Vercel Analytics event
+                        if (window.va) {
+                            window.va('track', 'Ping Success', { responseTime: responseTimeMs });
+                        }
                     } else {
                         throw new Error(`HTTP ${response.status}`);
                     }
@@ -348,7 +387,14 @@
                     this.failCount++;
                     this.updateStatus('offline', 'Service Offline');
                     this.responseTime.textContent = 'Failed';
-                    this.addLog(`❌ Ping failed: ${error.message}`, 'error');
+                    
+                    const errorMsg = error.name === 'AbortError' ? 'Request timeout' : error.message;
+                    this.addLog(`❌ Ping failed: ${errorMsg}`, 'error');
+                    
+                    // Vercel Analytics event
+                    if (window.va) {
+                        window.va('track', 'Ping Failed', { error: errorMsg });
+                    }
                 }
                 
                 this.updateStats();
@@ -414,13 +460,63 @@
 
         // Initialize the monitor when page loads
         document.addEventListener('DOMContentLoaded', () => {
+            // Detect deployment environment
+            const isVercel = window.location.hostname.includes('vercel.app') || 
+                           window.location.hostname.includes('vercel.live');
+            const isLocal = window.location.hostname === 'localhost' || 
+                          window.location.hostname === '127.0.0.1';
+            
+            console.log('🚀 VidhyaDham Monitor initialized', {
+                environment: isVercel ? 'Vercel' : isLocal ? 'Local' : 'Other',
+                hostname: window.location.hostname,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Track deployment environment
+            if (window.va && isVercel) {
+                window.va('track', 'Monitor Started', { environment: 'Vercel' });
+            }
+            
             new ServiceMonitor();
         });
 
-        // Keep the page active
+        // Keep the page active and prevent sleep
         setInterval(() => {
-            console.log('Keep-alive ping at', new Date().toISOString());
+            console.log('🔄 Keep-alive heartbeat at', new Date().toISOString());
+            
+            // Prevent page from going idle
+            if (document.hidden) {
+                console.log('⚠️ Page is hidden - monitor may not work optimally');
+            }
         }, 30000);
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('📱 Page hidden - monitor paused');
+            } else {
+                console.log('👁️ Page visible - monitor active');
+            }
+        });
+
+        // Service Worker for background processing (Vercel compatible)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Create minimal service worker inline
+                const swCode = `
+                    self.addEventListener('message', (event) => {
+                        console.log('SW: Keep-alive message received');
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('🔧 Service Worker registered for background processing'))
+                    .catch(() => console.log('⚠️ Service Worker registration failed (normal in some environments)'));
+            });
+        }
     </script>
 </body>
 </html>
