@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Instructions - VidhyaDham Monitor</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        .option {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        .option h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .steps {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .pros {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .quick {
+            background: #10b981;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Deploy Your VidhyaDham Monitor</h1>
+        <p>Choose the best hosting option for your keep-alive monitor</p>
+    </div>
+
+    <div class="quick">
+        <h3>⚡ Quick Start (2 minutes)</h3>
+        <p><strong>Best Option:</strong> GitHub Pages - Free, reliable, and easy!</p>
+        <ol>
+            <li>Create GitHub repo → Upload index.html → Enable Pages</li>
+            <li>Your monitor will be live at: yourusername.github.io/repo-name</li>
+        </ol>
+    </div>
+
+    <div class="option">
+        <h3>🐙 GitHub Pages (Recommended)</h3>
+        <p class="pros">✅ Free forever ✅ Reliable ✅ Custom domain support</p>
+        
+        <div class="steps">
+            <h4>Setup Steps:</h4>
+            <ol>
+                <li>Go to <a href="https://github.com" target="_blank">github.com</a> and create new repository</li>
+                <li>Name it: <code>vidhyadham-monitor</code></li>
+                <li>Upload the <code>index.html</code> file</li>
+                <li>Go to Settings → Pages</li>
+                <li>Set Source to "Deploy from a branch" → main</li>
+                <li>Wait 2-3 minutes for deployment</li>
+            </ol>
+            <p><strong>Your URL will be:</strong> <code>https://yourusername.github.io/vidhyadham-monitor</code></p>
+        </div>
+        
+        <a href="https://github.com/new" target="_blank" class="btn">Create GitHub Repo</a>
+    </div>
+
+    <div class="option">
+        <h3>🎯 Netlify (Instant Deploy)</h3>
+        <p class="pros">✅ Drag & drop deploy ✅ Instant ✅ Auto HTTPS</p>
+        
+        <div class="steps">
+            <h4>Setup Steps:</h4>
+            <ol>
+                <li>Go to <a href="https://netlify.com" target="_blank">netlify.com</a></li>
+                <li>Sign up for free account</li>
+                <li>Drag and drop the <code>ping-vidhyadham</code> folder to Netlify</li>
+                <li>Get instant URL like: <code>https://amazing-name-123.netlify.app</code></li>
+            </ol>
+            <p><strong>Deploy time:</strong> 30 seconds!</p>
+        </div>
+        
+        <a href="https://netlify.com" target="_blank" class="btn">Deploy on Netlify</a>
+    </div>
+
+    <div class="option">
+        <h3>▲ Vercel (Developer Friendly)</h3>
+        <p class="pros">✅ Git integration ✅ Fast deploys ✅ Analytics</p>
+        
+        <div class="steps">
+            <h4>Setup Steps:</h4>
+            <ol>
+                <li>Go to <a href="https://vercel.com" target="_blank">vercel.com</a></li>
+                <li>Import from GitHub or upload folder</li>
+                <li>One-click deploy</li>
+                <li>Get URL like: <code>https://vidhyadham-monitor.vercel.app</code></li>
+            </ol>
+        </div>
+        
+        <a href="https://vercel.com" target="_blank" class="btn">Deploy on Vercel</a>
+    </div>
+
+    <div class="option">
+        <h3>🌐 Firebase Hosting</h3>
+        <p class="pros">✅ Google infrastructure ✅ Fast global CDN ✅ Free SSL</p>
+        
+        <div class="steps">
+            <h4>Setup Steps:</h4>
+            <ol>
+                <li>Install Firebase CLI: <code>npm install -g firebase-tools</code></li>
+                <li>Run: <code>firebase login</code></li>
+                <li>Run: <code>firebase init hosting</code></li>
+                <li>Deploy: <code>firebase deploy</code></li>
+            </ol>
+        </div>
+        
+        <a href="https://console.firebase.google.com" target="_blank" class="btn">Firebase Console</a>
+    </div>
+
+    <div class="option">
+        <h3>📱 For Mobile Users</h3>
+        <p>If you want to monitor from your phone 24/7:</p>
+        
+        <div class="steps">
+            <h4>Options:</h4>
+            <ol>
+                <li><strong>Browser Bookmark:</strong> Save the deployed URL to your phone's homescreen</li>
+                <li><strong>Always-on Tab:</strong> Keep the monitor tab open in your mobile browser</li>
+                <li><strong>Multiple Devices:</strong> Open on phone, tablet, laptop for redundancy</li>
+            </ol>
+        </div>
+    </div>
+
+    <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin-top: 30px;">
+        <h3>💡 Pro Tips</h3>
+        <ul>
+            <li><strong>Keep tab active:</strong> Monitor only works when browser tab is open and active</li>
+            <li><strong>Multiple monitors:</strong> Deploy to 2-3 platforms for redundancy</li>
+            <li><strong>Bookmark it:</strong> Add to bookmarks for easy access</li>
+            <li><strong>Mobile friendly:</strong> Works great on phones and tablets</li>
+            <li><strong>No maintenance:</strong> Once deployed, it runs forever</li>
+        </ul>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding: 20px; background: #667eea; color: white; border-radius: 8px;">
+        <h3>🎉 Next Steps</h3>
+        <p>1. Deploy using any option above<br>
+        2. Open the URL in your browser<br>
+        3. Watch your service stay alive!<br>
+        4. Your Render service will never sleep again 🚀</p>
+    </div>
+</body>
+</html>
